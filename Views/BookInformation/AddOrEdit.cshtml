@@ -1,0 +1,172 @@
+﻿@model LibrarySystem.Models.BookInformation
+@{
+    ViewData["Title"] = "Book Information";
+}
+
+<style>
+    .book-form-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-title {
+        color: #2c3e50;
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        text-align: center;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .control-label {
+        font-weight: 500;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+        .form-control:focus {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+            outline: none;
+        }
+
+    .text-danger {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #4299e1;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #3182ce;
+            transform: translateY(-1px);
+        }
+
+    .btn-secondary {
+        background-color: #718096;
+        border: none;
+    }
+
+        .btn-secondary:hover {
+            background-color: #4a5568;
+            transform: translateY(-1px);
+        }
+
+    /* Grid layout for form fields */
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    @@media screen and (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .book-form-container {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="book-form-container">
+    <h1 class="form-title">Book Information</h1>
+
+    <form asp-action="AddOrEdit" autocomplete="off">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="BookStatus" />
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="BookID" class="control-label"></label>
+                <input asp-for="BookID" class="form-control" placeholder="Enter book number" />
+                <span asp-validation-for="BookID" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="BookTitle" class="control-label"></label>
+                <input asp-for="BookTitle" class="form-control" placeholder="Enter book title" />
+                <span asp-validation-for="BookTitle" class="text-danger"></span>
+            </div>
+
+
+            <div class="form-group">
+                <label asp-for="BookAuthor" class="control-label"></label>
+                <input asp-for="BookAuthor" class="form-control" placeholder="Enter author name" />
+                <span asp-validation-for="BookAuthor" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="BookClassification" class="control-label"></label>
+                <input asp-for="BookClassification" class="form-control" placeholder="Enter classification" />
+                <span asp-validation-for="BookClassification" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="BookDonor" class="control-label"></label>
+                <input asp-for="BookDonor" class="form-control" placeholder="Enter donor name" />
+                <span asp-validation-for="BookDonor" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="BookCategory" class="control-label"></label>
+                <input asp-for="BookCategory" class="form-control" placeholder="Enter category" />
+                <span asp-validation-for="BookCategory" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i> Save
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-list me-2"></i> View All
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

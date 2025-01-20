@@ -1,0 +1,244 @@
+﻿@model LibrarySystem.Models.StudentInformation
+@{
+    ViewData["Title"] = Model.StudentLRN == null ? "Add Student" : "Edit Student";
+}
+
+<style>
+    .student-form-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-title {
+        color: #2c3e50;
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        text-align: center;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .control-label {
+        font-weight: 500;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #4299e1;
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+        outline: none;
+    }
+
+    .text-danger {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #4299e1;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #3182ce;
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        background-color: #718096;
+        border: none;
+    }
+
+    .btn-secondary:hover {
+        background-color: #4a5568;
+        transform: translateY(-1px);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    @@media screen and (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .student-form-container {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="student-form-container">
+    <h1 class="form-title">@ViewData["Title"]</h1>
+    <form asp-controller="StudentInformation" asp-action="AddOrEdit" method="post" novalidate>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="isEdit" value="@(Model.StudentLRN != null)" />
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="StudentLRN" class="control-label"></label>
+                @if (Model.StudentLRN != null)
+                {
+                    <input asp-for="StudentLRN" class="form-control" placeholder="Enter LRN number"
+                           readonly />
+                }
+                else
+                {
+                    <input asp-for="StudentLRN" class="form-control" placeholder="Enter LRN (12 digits)"
+                           maxlength="12"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '');
+                                   if(this.value.length != 12) {
+                                       document.getElementById('lrnValidation').style.display = 'block';
+                                   } else {
+                                       document.getElementById('lrnValidation').style.display = 'none';
+                                   }"
+                           required />
+                    <div id="lrnValidation" class="text-danger" style="display: none;">
+                        LRN must be exactly 12 digits
+                    </div>
+                }
+                <span asp-validation-for="StudentLRN" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="StudentName" class="control-label"></label>
+                <input asp-for="StudentName" class="form-control" placeholder="Enter student name"
+                       autocomplete="off" required />
+                <span asp-validation-for="StudentName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="StudentGradeSection" class="control-label"></label>
+                <input asp-for="StudentGradeSection" class="form-control"
+                       placeholder="Enter grade and section" autocomplete="off" required />
+                <span asp-validation-for="StudentGradeSection" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="StudentContact" class="control-label"></label>
+                <input asp-for="StudentContact" class="form-control"
+                       placeholder="Enter contact number"
+                       maxlength="11"
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '');
+                       if(this.value.length < 11) {
+                document.getElementById('contactValidation').style.display = 'block';
+                } else {
+                document.getElementById('contactValidation').style.display = 'none';
+                }"
+                required />
+                <div id="contactValidation" class="text-danger" style="display: none;">
+                    Contact number must be 11 digits
+                </div>
+                <span asp-validation-for="StudentContact" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="StudentEmail" class="control-label"></label>
+                <input asp-for="StudentEmail" class="form-control"
+                       placeholder="Enter email address" type="email" autocomplete="off" required />
+                <span asp-validation-for="StudentEmail" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="btn btn-primary" onclick="return validateForm()">
+                <i class="fas fa-save me-2"></i> Save
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-list me-2"></i> Back to List
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        function validateForm() {
+            // Get form values
+            const lrn = document.querySelector('[asp-for="StudentLRN"]')?.value;
+            const contact = document.querySelector('[asp-for="StudentContact"]')?.value;
+
+            let isValid = true;
+
+            // Validate LRN if it's not readonly
+            if (lrn && !document.querySelector('[asp-for="StudentLRN"]').readOnly) {
+                if (lrn.length !== 12 || !/^\d+$/.test(lrn)) {
+                    document.getElementById('lrnValidation').style.display = 'block';
+                    isValid = false;
+                }
+            }
+
+            // Validate contact number
+            if (contact) {
+                if (contact.length !== 11 || !/^\d+$/.test(contact)) {
+                    document.getElementById('contactValidation').style.display = 'block';
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
+
+        // Add event listeners for real-time validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const lrnInput = document.querySelector('[asp-for="StudentLRN"]');
+            const contactInput = document.querySelector('[asp-for="StudentContact"]');
+
+            if (lrnInput && !lrnInput.readOnly) {
+                lrnInput.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            }
+
+            if (contactInput) {
+                contactInput.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            }
+        });
+    </script>
+}

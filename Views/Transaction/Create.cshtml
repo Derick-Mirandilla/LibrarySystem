@@ -1,0 +1,200 @@
+﻿@model LibrarySystem.Models.Transaction
+
+<style>
+    .transaction-form-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-title {
+        color: #2c3e50;
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        text-align: center;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .control-label {
+        font-weight: 500;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #4299e1;
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+        outline: none;
+    }
+
+    .text-danger {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #4299e1;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #3182ce;
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        background-color: #718096;
+        border: none;
+    }
+
+    .btn-secondary:hover {
+        background-color: #4a5568;
+        transform: translateY(-1px);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    @@media screen and (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .transaction-form-container {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+
+<div class="transaction-form-container">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h3 class="card-title text-center mb-0">New Transaction</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post" id="transactionForm">
+                <div class="mb-3">
+                    <label asp-for="LRN" class="form-label">LRN</label>
+                    <input asp-for="LRN" class="form-control" placeholder="Enter LRN (12 characters)" maxlength="12" />
+                    <div id="lrnValidation" class="text-danger" style="display: none;">
+                        LRN must be exactly 12 characters
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="BookID" class="form-label">Book ID</label>
+                    <input asp-for="BookID" class="form-control" placeholder="Enter Book ID" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="StudentName" class="form-label">Student Name</label>
+                    <input asp-for="StudentName" class="form-control bg-light" readonly />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="BookTitle" class="form-label">Book Title</label>
+                    <input asp-for="BookTitle" class="form-control bg-light" readonly />
+                </div>
+                <div class="button-group">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i> Save
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-list me-2"></i> Back to List
+            </a>
+        </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#LRN').on('input', function() {
+                var lrn = $(this).val();
+                // Show validation message if LRN length is not 12
+                if (lrn.length > 0 && lrn.length !== 12) {
+                    $('#lrnValidation').show();
+                } else {
+                    $('#lrnValidation').hide();
+                }
+                
+                if (lrn.length === 12) {
+                    $.get('@Url.Action("GetStudentByLRN", "Transaction")', { lrn: lrn })
+                        .done(function(data) {
+                            if (data) {
+                                $('#StudentName').val(data.studentName);
+                            } else {
+                                $('#StudentName').val('');
+                            }
+                        });
+                } else {
+                    $('#StudentName').val('');
+                }
+            });
+
+            $('#BookID').on('input', function() {
+                var bookID = $(this).val();
+                if (bookID) {
+                    $.get('@Url.Action("GetBookByID", "Transaction")', { bookID: bookID })
+                        .done(function(data) {
+                            if (data) {
+                                $('#BookTitle').val(data.bookTitle);
+                            } else {
+                                $('#BookTitle').val('');
+                            }
+                        });
+                } else {
+                    $('#BookTitle').val('');
+                }
+            });
+
+            // Prevent form submission if LRN is not exactly 12 characters
+            $('#transactionForm').on('submit', function(e) {
+                var lrn = $('#LRN').val();
+                if (lrn.length !== 12) {
+                    e.preventDefault();
+                    $('#lrnValidation').show();
+                    return false;
+                }
+            });
+        });
+    </script>
+}

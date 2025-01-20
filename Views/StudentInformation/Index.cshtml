@@ -1,0 +1,282 @@
+﻿@model PaginatedList<LibrarySystem.Models.StudentInformation>
+@using LibrarySystem.Helpers
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="text-center fw-bold">STUDENTS</h1>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <div class="row g-3 justify-content-center align-items-center">
+                <div class="col-md-3">
+                    <form asp-action="Index" method="get" autocomplete="off">
+                        <select name="searchBy" class="form-select shadow-sm">
+                            <option value="" selected="@(ViewData["SearchBy"]?.ToString() == "")">Search All Fields</option>
+                            <option value="Name" selected="@(ViewData["SearchBy"]?.ToString() == "Name")">Name</option>
+                            <option value="GradeSection" selected="@(ViewData["SearchBy"]?.ToString() == "GradeSection")">Grade & Section</option>
+                            <option value="LRN" selected="@(ViewData["SearchBy"]?.ToString() == "LRN")">LRN</option>
+                        </select>
+                    </form>
+                </div>
+
+                <div class="col-md-5">
+                    <div class="input-group shadow-sm">
+                        <input type="text" name="searchString" class="form-control" placeholder="Search..." value="@ViewData["SearchString"]" />
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-search me-2"></i>Search
+                        </button>
+                        <a asp-action="Index" asp-route-searchString="" asp-route-searchBy="" asp-route-pageNumber="1" class="btn btn-secondary px-4">
+                            <i class="fas fa-redo me-2"></i>Reset
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <form asp-action="DownloadStudentInformation" method="get" class="d-flex justify-content-end">
+                        <input type="hidden" name="searchBy" value="@ViewData["SearchBy"]" />
+                        <input type="hidden" name="searchString" value="@ViewData["SearchString"]" />
+                        <button type="submit" class="btn btn-success px-4 download-btn">
+                            <i class="fas fa-file-excel me-2"></i>Export to Excel
+                        </button>
+                        <a asp-action="AddOrEdit" class="btn btn-primary px-4 ms-2">
+                            <i class="fas fa-plus me-2"></i>New Student Entry
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 student-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="px-3 col-student-lrn">LRN</th>
+                                <th class="px-3 col-student-name">Name</th>
+                                <th class="px-3 col-student-grade">Grade & Section</th>
+                                <th class="px-3 col-student-contact">Contact</th>
+                                <th class="px-3 col-student-email">Email</th>
+                                <th class="px-3 text-center col-actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="px-3">@item.StudentLRN</td>
+                                    <td class="px-3">@item.StudentName</td>
+                                    <td class="px-3">@item.StudentGradeSection</td>
+                                    <td class="px-3">@item.StudentContact</td>
+                                    <td class="px-3">@item.StudentEmail</td>
+                                    <td class="px-3 text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-action="AddOrEdit" asp-route-id="@item.StudentLRN"
+                                               class="btn btn-warning action-btn" title="Edit">
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                            </a>
+                                            <form asp-action="Delete" asp-route-id="@item.StudentLRN"
+                                                  onsubmit="return confirm('Are you sure you want to delete this student?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-danger action-btn" title="Delete">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <!-- First Page -->
+                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index"
+                       asp-route-pageNumber="1"
+                       asp-route-pageSize="@ViewData["PageSize"]"
+                       asp-route-searchString="@ViewData["SearchString"]"
+                       asp-route-searchBy="@ViewData["SearchBy"]"
+                       tabindex="@(!Model.HasPreviousPage ? "-1" : "0")">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+
+                <!-- Previous Page -->
+                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageIndex - 1)"
+                       asp-route-pageSize="@ViewData["PageSize"]"
+                       asp-route-searchString="@ViewData["SearchString"]"
+                       asp-route-searchBy="@ViewData["SearchBy"]"
+                       tabindex="@(!Model.HasPreviousPage ? "-1" : "0")">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+
+                @{
+                    int maxPageLinks = 5;
+                    int startPage = Math.Max(1, Model.PageIndex - maxPageLinks / 2);
+                    int endPage = Math.Min(Model.TotalPages, startPage + maxPageLinks - 1);
+
+                    if (endPage - startPage + 1 < maxPageLinks)
+                    {
+                        startPage = Math.Max(1, endPage - maxPageLinks + 1);
+                    }
+                }
+
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-pageNumber="@i"
+                           asp-route-pageSize="@ViewData["PageSize"]"
+                           asp-route-searchString="@ViewData["SearchString"]"
+                           asp-route-searchBy="@ViewData["SearchBy"]">@i</a>
+                    </li>
+                }
+
+                <!-- Next Page -->
+                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageIndex + 1)"
+                       asp-route-pageSize="@ViewData["PageSize"]"
+                       asp-route-searchString="@ViewData["SearchString"]"
+                       asp-route-searchBy="@ViewData["SearchBy"]"
+                       tabindex="@(!Model.HasNextPage ? "-1" : "0")">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+
+                <!-- Last Page -->
+                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index"
+                       asp-route-pageNumber="@Model.TotalPages"
+                       asp-route-pageSize="@ViewData["PageSize"]"
+                       asp-route-searchString="@ViewData["SearchString"]"
+                       asp-route-searchBy="@ViewData["SearchBy"]"
+                       tabindex="@(!Model.HasNextPage ? "-1" : "0")">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <style>
+        /* Container Styles */
+        .container {
+            width: initial;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        /* Table Styles */
+        .student-table {
+            width: inherit;
+            margin: 0 auto;
+            table-layout: fixed;
+        }
+
+            .student-table th,
+            .student-table td {
+                padding: 12px 10px !important;
+                vertical-align: middle;
+                word-wrap: break-word;
+                height: auto;
+            }
+
+        /* Column widths in percentage */
+        .col-student-lrn {
+            width: 20%;
+        }
+
+        .col-student-name {
+            width: 25%;
+        }
+
+        .col-student-grade {
+            width: 15%;
+        }
+
+        .col-student-contact {
+            width: 12%;
+        }
+
+        .col-student-email {
+            width: 20%;
+        }
+
+        .col-actions {
+            width: 10%;
+        }
+
+        /* Card styling */
+        .card {
+            margin: 0 auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        /* Text styles */
+        .student-table td,
+        .student-table th {
+            font-size: 14px;
+            line-height: 1.4;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+
+        /* Button group styles - Updated */
+        .student-table .btn-group-sm {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* New unified button styles */
+        .action-btn {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 32px !important;
+            height: 32px !important;
+            padding: 0 !important;
+            font-size: 14px;
+            border-radius: 4px !important;
+        }
+
+        .student-table .btn-group-sm form {
+            margin: 0;
+            line-height: 0;
+            display: flex;
+        }
+
+        /* Remove horizontal scroll */
+        .table-responsive {
+            overflow-x: visible;
+        }
+
+        /* Action bar styles */
+        .action-bar {
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</body>
+</html>

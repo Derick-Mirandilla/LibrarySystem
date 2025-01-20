@@ -1,0 +1,109 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Welcome Section -->
+        <div class="col-12 text-center mb-5">
+            <h1 class="display-4 mb-4">Library Management System</h1>
+            <p class="lead">Manage. Track. Organize.</p>
+        </div>
+
+        <!-- Quick Stats Cards -->
+        <div class="col-12 mb-5">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-book fa-3x mb-3"></i>
+                            <h5 class="card-title">Total Books</h5>
+                            <h2 class="card-text">@ViewBag.TotalBooks</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-users fa-3x mb-3"></i>
+                            <h5 class="card-title">Total Students</h5>
+                            <h2 class="card-text">@ViewBag.TotalStudents</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-exchange-alt fa-3x mb-3"></i>
+                            <h5 class="card-title">Active Borrows</h5>
+                            <h2 class="card-text">@ViewBag.ActiveBorrows</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-danger text-white h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-clock fa-3x mb-3"></i>
+                            <h5 class="card-title">Overdue Books</h5>
+                            <h2 class="card-text">@ViewBag.OverdueBooks</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-3">
+                        <a asp-controller="Transaction" asp-action="Create" class="btn btn-outline-primary">
+                            <i class="fas fa-plus"></i> New Transaction
+                        </a>
+                        <a asp-controller="BookInformation" asp-action="AddOrEdit" class="btn btn-outline-success">
+                            <i class="fas fa-book"></i> Add New Book
+                        </a>
+                        <a asp-controller="StudentInformation" asp-action="AddOrEdit" class="btn btn-outline-info">
+                            <i class="fas fa-user-plus"></i> Register Student
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Recent Activities</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        @if (ViewBag.RecentActivities != null)
+                        {
+                            @foreach (var activity in ViewBag.RecentActivities)
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">@activity.Action</h6>
+                                        <small>@activity.Date.ToShortDateString()</small>
+                                    </div>
+                                    <p class="mb-1">@activity.Description</p>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted text-center my-3">No recent activities</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+      
+    </div>
+</div>
